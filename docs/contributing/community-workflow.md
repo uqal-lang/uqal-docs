@@ -202,9 +202,6 @@ If **only files inside `docs/`** were changed — no code, no `module.json`, no 
 ✗ No git tag
 ```
 
-This keeps the changelog clean and avoids unnecessary PyPI releases for
-documentation fixes or wording improvements.
-
 ### Code change (everything else)
 
 If any non-docs file changed:
@@ -215,9 +212,110 @@ If any non-docs file changed:
 4. Write new version to `module.json`
 5. Commit version bump to `main` with `[skip ci]`
 6. Create git tag: `community.postgis-v0.2.0`
-7. Build and publish via `uv publish` (OIDC Trusted Publishing — no API keys)
+7. Publish to PyPI if configured (see below)
 8. Run git-cliff to generate the changelog
 9. Deploy updated docs to the documentation site
+
+---
+
+## Installing a Community Module
+
+There are two ways to install a community module — with or without PyPI.
+
+### Without PyPI (git install)
+
+Works immediately after a module is merged — no PyPI account needed.
+
+```bash
+# Latest version
+uv add "git+https://github.com/uqal-lang/uqal-modules#subdirectory=modules/community.postgis"
+
+# Pinned to a specific version (uses git tag created by CI)
+uv add "git+https://github.com/uqal-lang/uqal-modules@community.postgis-v0.2.0#subdirectory=modules/community.postgis"
+```
+
+### With PyPI
+
+If the module author has set up PyPI publishing:
+
+```bash
+uv add uqal-postgis
+```
+
+Then register the module:
+
+```bash
+uqal add-module community.postgis
+```
+
+And declare it on the connection:
+
+```json
+{
+  "connections": {
+    "mydb": {
+      "module": "standard.postgresql",
+      "modules": ["standard.postgresql", "community.postgis"]
+    }
+  }
+}
+```
+
+---
+
+## PyPI Publishing (optional)
+
+PyPI publishing is **opt-in**. You are responsible for setting it up for your own module.
+If you skip it, users can still install your module via the git URL above.
+
+### Step 1 — Create a PyPI account
+
+Register at [pypi.org](https://pypi.org/account/register/).
+
+### Step 2 — Set up Trusted Publishing
+
+Trusted Publishing lets CI publish to PyPI without storing an API key anywhere.
+
+1. Log in to [pypi.org](https://pypi.org)
+2. Go to **Account settings → Publishing → Add a new pending publisher**
+3. Fill in:
+
+| Field | Value |
+|-------|-------|
+| Package name | `uqal-<yourmodule>` (e.g. `uqal-postgis`) |
+| Owner | `uqal-lang` |
+| Repository | `uqal-modules` |
+| Workflow name | `publish-module.yml` |
+| Environment | *(leave empty)* |
+
+4. Save — PyPI now trusts the CI workflow to publish under this package name.
+
+### Step 3 — Add `pypi_package` to module.json
+
+```json
+{
+  "name": "community.postgis",
+  "version": "0.1.0",
+  "compatible_with": 1,
+  "type": "extension",
+  "extends": "standard.postgresql",
+  "description": "PostGIS geospatial syntax for PostgreSQL connections.",
+  "author": "Your Name",
+  "repository": "https://github.com/uqal-lang/uqal-modules",
+  "pypi_package": "uqal-postgis"
+}
+```
+
+The CI reads `pypi_package` from `module.json`. If the field is missing, the PyPI publish step is skipped automatically.
+
+### First publish
+
+The first time your module merges to `main`, CI will:
+1. Build the package
+2. Publish it to PyPI under the name you registered
+3. The package is now installable via `uv add uqal-postgis`
+
+All subsequent merges publish new versions automatically.
 
 ---
 
@@ -243,25 +341,3 @@ them by type:
 
 Each entry links to its PR on GitHub. `docs`, `test`, and `chore` commits
 are excluded from the user-facing changelog.
-
----
-
-## Installing a Community Module
-
-```bash
-uv add uqal-postgis
-uqal add-module community.postgis
-```
-
-Then declare it on the connection:
-
-```json
-{
-  "connections": {
-    "mydb": {
-      "module": "standard.postgresql",
-      "modules": ["standard.postgresql", "community.postgis"]
-    }
-  }
-}
-```
