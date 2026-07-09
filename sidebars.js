@@ -1,0 +1,73 @@
+// @ts-check
+
+/** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
+const sidebars = {
+  userSidebar: [
+    'intro',
+    'getting-started',
+    'language-reference',
+    'cli',
+    {
+      type: 'category',
+      label: 'Modules',
+      collapsed: false,
+      items: [
+        'modules/index',
+        {
+          type: 'category',
+          label: 'Standard',
+          collapsed: false,
+          items: [
+            {
+              type: 'category',
+              label: 'PostgreSQL',
+              collapsed: true,
+              items: [
+                'modules/standard/postgresql/index',
+                'modules/standard/postgresql/syntax',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'MongoDB',
+              collapsed: true,
+              items: [
+                'modules/standard/mongodb/index',
+                'modules/standard/mongodb/syntax',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'Neo4j',
+              collapsed: true,
+              items: [
+                'modules/standard/neo4j/index',
+                'modules/standard/neo4j/syntax',
+              ],
+            },
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Community',
+          collapsed: false,
+          items: [
+            'modules/community/index',
+          ],
+        },
+      ],
+    },
+    'changelog',
+  ],
+
+  developerSidebar: [
+    'contributing/index',
+    'contributing/architecture',
+    'contributing/module-development',
+    'contributing/extension-modules',
+    'contributing/module-standards',
+    'contributing/community-workflow',
+  ],
+};
+
+export default sidebars;

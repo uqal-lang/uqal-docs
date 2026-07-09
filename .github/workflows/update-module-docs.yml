@@ -1,0 +1,100 @@
+name: Update Module Docs
+
+# Triggered by uqal-modules after a publish or docs-only change
+on:
+  repository_dispatch:
+    types: [module-docs-updated]
+
+jobs:
+  update:
+    name: Fetch & Commit Module Docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout uqal-docs
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read event payload
+        id: payload
+        run: |
+          MODULE="${{ github.event.client_payload.module }}"
+          SOURCE_REPO="${{ github.event.client_payload.source_repo }}"
+          DOCS_ONLY="${{ github.event.client_payload.docs_only }}"
+          TAG="${{ github.event.client_payload.tag }}"
+          REF="${{ github.event.client_payload.ref }}"
+
+          echo "module=$MODULE" >> $GITHUB_OUTPUT
+          echo "source_repo=$SOURCE_REPO" >> $GITHUB_OUTPUT
+          echo "docs_only=$DOCS_ONLY" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "ref=${TAG:-$REF}" >> $GITHUB_OUTPUT
+
+      - name: Clone uqal-modules at published tag or commit
+        run: |
+          REF="${{ steps.payload.outputs.ref }}"
+          SOURCE="https://github.com/${{ steps.payload.outputs.source_repo }}.git"
+
+          git clone --depth 1 --branch "$REF" "$SOURCE" temp-modules 2>/dev/null \
+            || git clone --depth 1 "$SOURCE" temp-modules && \
+               git -C temp-modules checkout "$REF"
+
+      - name: Copy module docs into uqal-docs
+        run: |
+          MODULE="${{ steps.payload.outputs.module }}"
+          SRC="temp-modules/modules/$MODULE/docs"
+          DST="docs/modules/community/$MODULE"
+
+          if [[ ! -d "$SRC" ]]; then
+            echo "❌ No docs/ folder found at $SRC"
+            exit 1
+          fi
+
+          mkdir -p "$DST"
+          cp -r "$SRC/." "$DST/"
+          echo "✅ Copied docs for $MODULE"
+
+      - name: Add changelog page (code change only)
+        if: steps.payload.outputs.docs_only == 'false'
+        run: |
+          MODULE="${{ steps.payload.outputs.module }}"
+          VERSION="${{ github.event.client_payload.version }}"
+          TAG="${{ steps.payload.outputs.tag }}"
+          DST="docs/modules/community/$MODULE"
+
+          # Write a minimal changelog entry if none exists yet in the copied docs
+          if [[ ! -f "$DST/changelog.md" ]]; then
+            cat > "$DST/changelog.md" <<EOF
+          ---
+          title: Changelog
+          sidebar_label: Changelog
+          sidebar_position: 99
+          ---
+
+          # Changelog
+
+          See all releases: [GitHub Releases](https://github.com/${{ steps.payload.outputs.source_repo }}/releases?q=$MODULE)
+          EOF
+          fi
+
+      - name: Commit and push to uqal-docs
+        run: |
+          MODULE="${{ steps.payload.outputs.module }}"
+          VERSION="${{ github.event.client_payload.version }}"
+          DOCS_ONLY="${{ steps.payload.outputs.docs_only }}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add docs/modules/community/$MODULE/
+
+          if [[ "$DOCS_ONLY" == "true" ]]; then
+            MSG="docs($MODULE): update documentation"
+          else
+            MSG="docs($MODULE): update docs for v$VERSION"
+          fi
+
+          git diff --staged --quiet && echo "No changes to commit" && exit 0
+          git commit -m "$MSG"
+          git push
+          echo "✅ uqal-docs updated for $MODULE"
