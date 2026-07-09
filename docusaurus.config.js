@@ -11,11 +11,11 @@ const config = {
     v4: true,
   },
 
-  url: 'https://uqal.dev',
-  baseUrl: '/',
+  url: 'https://uqal-lang.github.io',
+  baseUrl: '/uqal-docs/',
 
-  organizationName: 'uqal',
-  projectName: 'uqal',
+  organizationName: 'uqal-lang',
+  projectName: 'uqal-docs',
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -32,7 +32,7 @@ const config = {
       ({
         docs: {
           sidebarPath: './sidebars.js',
-          editUrl: 'https://github.com/uqal/uqal/edit/main/uqal-docs/',
+          editUrl: 'https://github.com/uqal-lang/uqal-docs/edit/main/',
         },
         blog: false,
         theme: {
@@ -70,7 +70,7 @@ const config = {
             label: 'Developer Guide',
           },
           {
-            href: 'https://github.com/uqal/uqal',
+            href: 'https://github.com/uqal-lang/uqal-docs',
             label: 'GitHub',
             position: 'right',
           },
@@ -90,9 +90,9 @@ const config = {
           {
             title: 'Modules',
             items: [
-              {label: 'PostgreSQL', to: '/docs/modules/postgresql'},
-              {label: 'MongoDB', to: '/docs/modules/mongodb'},
-              {label: 'Neo4j', to: '/docs/modules/neo4j'},
+              {label: 'PostgreSQL', to: '/docs/modules/standard/postgresql'},
+              {label: 'MongoDB', to: '/docs/modules/standard/mongodb'},
+              {label: 'Neo4j', to: '/docs/modules/standard/neo4j'},
             ],
           },
           {
@@ -100,7 +100,7 @@ const config = {
             items: [
               {label: 'Architecture', to: '/docs/contributing/architecture'},
               {label: 'Build a Module', to: '/docs/contributing/module-development'},
-              {label: 'GitHub', href: 'https://github.com/uqal/uqal'},
+              {label: 'GitHub', href: 'https://github.com/uqal-lang/uqal-docs'},
             ],
           },
         ],
