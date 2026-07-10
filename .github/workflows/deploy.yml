@@ -69,8 +69,8 @@ jobs:
               generated = "No community modules yet. Be the first to contribute!"
 
           content = re.sub(
-              r'<!-- COMMUNITY-MODULES-LIST -->.*?<!-- /COMMUNITY-MODULES-LIST -->',
-              f'<!-- COMMUNITY-MODULES-LIST -->\n\n{generated}\n\n<!-- /COMMUNITY-MODULES-LIST -->',
+              r'\{/\* COMMUNITY-MODULES-LIST \*/\}.*?\{/\* /COMMUNITY-MODULES-LIST \*/\}',
+              f'{{/* COMMUNITY-MODULES-LIST */}}\n\n{generated}\n\n{{/* /COMMUNITY-MODULES-LIST */}}',
               content,
               flags=re.DOTALL
           )
