@@ -5,6 +5,9 @@ on:
   repository_dispatch:
     types: [module-docs-updated]
 
+permissions:
+  contents: write
+
 jobs:
   update:
     name: Fetch & Commit Module Docs
@@ -46,13 +49,13 @@ jobs:
           DST="docs/modules/community/$MODULE"
 
           if [[ ! -d "$SRC" ]]; then
-            echo "❌ No docs/ folder found at $SRC"
+            echo "ERROR: No docs/ folder found at $SRC"
             exit 1
           fi
 
           mkdir -p "$DST"
           cp -r "$SRC/." "$DST/"
-          echo "✅ Copied docs for $MODULE"
+          echo "Copied docs for $MODULE"
 
       - name: Add changelog page (code change only)
         if: steps.payload.outputs.docs_only == 'false'
@@ -97,4 +100,4 @@ jobs:
           git diff --staged --quiet && echo "No changes to commit" && exit 0
           git commit -m "$MSG"
           git push
-          echo "✅ uqal-docs updated for $MODULE"
+          echo "uqal-docs updated for $MODULE"
