@@ -30,6 +30,54 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate community modules index
+        run: |
+          python3 << 'PYEOF'
+          import os, re
+
+          community_dir = "docs/modules/community"
+          modules = []
+
+          for entry in sorted(os.listdir(community_dir)):
+              path = os.path.join(community_dir, entry)
+              if not os.path.isdir(path) or entry.startswith('_'):
+                  continue
+              index_file = os.path.join(path, "index.md")
+              if not os.path.exists(index_file):
+                  continue
+              content = open(index_file).read()
+              m = re.search(r'^title:\s*(.+)$', content, re.MULTILINE)
+              title = m.group(1).strip() if m else entry
+              body = re.sub(r'^---\n.*?---\n', '', content, flags=re.DOTALL).strip()
+              body = re.sub(r'^#+[^\n]+\n+', '', body).strip()
+              desc = body.split('\n\n')[0].replace('\n', ' ').strip()
+              desc = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', desc)
+              if len(desc) > 120:
+                  desc = desc[:117] + '...'
+              modules.append({'name': entry, 'title': title, 'desc': desc})
+
+          index_path = os.path.join(community_dir, "index.md")
+          content = open(index_path).read()
+
+          if modules:
+              rows = "\n".join(
+                  f"| [`{m['name']}`](./{m['name']}/) | {m['desc']} |"
+                  for m in modules
+              )
+              generated = f"| Module | Description |\n|--------|-------------|\n{rows}"
+          else:
+              generated = "No community modules yet. Be the first to contribute!"
+
+          content = re.sub(
+              r'<!-- COMMUNITY-MODULES-LIST -->.*?<!-- /COMMUNITY-MODULES-LIST -->',
+              f'<!-- COMMUNITY-MODULES-LIST -->\n\n{generated}\n\n<!-- /COMMUNITY-MODULES-LIST -->',
+              content,
+              flags=re.DOTALL
+          )
+          open(index_path, "w").write(content)
+          print(f"Indexed {len(modules)} community module(s): {[m['name'] for m in modules]}")
+          PYEOF
+
       - name: Build
         run: npm run build
 

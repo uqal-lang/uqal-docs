@@ -11,10 +11,11 @@ Community modules are built and maintained by the UQAL community.
 They extend UQAL with support for additional databases or add
 capabilities to existing modules.
 
-## No Community Modules Yet
+<!-- COMMUNITY-MODULES-LIST -->
 
-This section will be populated as community modules are submitted
-and approved through the `uqal-modules` repository.
+No community modules yet. Be the first to contribute!
+
+<!-- /COMMUNITY-MODULES-LIST -->
 
 ## Building a Community Module
 
