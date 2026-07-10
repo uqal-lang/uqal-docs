@@ -16,7 +16,7 @@ jobs:
       - name: Checkout uqal-docs
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.UQAL_DOCS_PAT }}
 
       - name: Read event payload
         id: payload
