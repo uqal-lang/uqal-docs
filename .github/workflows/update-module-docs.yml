@@ -76,7 +76,7 @@ jobs:
 
           # Changelog
 
-          See all releases: [GitHub Releases](https://github.com/${{ steps.payload.outputs.source_repo }}/releases?q=$MODULE)
+          See all releases: [GitHub Releases](https://github.com/${{ steps.payload.outputs.source_repo }}/tags?q=$MODULE)
           EOF
           fi
 
