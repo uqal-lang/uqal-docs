@@ -61,7 +61,7 @@ jobs:
 
           if modules:
               rows = "\n".join(
-                  f"| [`{m['name']}`](./{m['name']}/) | {m['desc']} |"
+                  f"| [`{m['name']}`](./{m['name']}/index.md) | {m['desc']} |"
                   for m in modules
               )
               generated = f"| Module | Description |\n|--------|-------------|\n{rows}"
